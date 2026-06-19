@@ -1,26 +1,148 @@
 @import "tailwindcss";
 
+/* ============================================================================
+   TechForge — Global Styles & Design Tokens (Tailwind CSS v4)
+   ----------------------------------------------------------------------------
+   The whole site uses ONE dark, cinematic palette taken from the Stitch design.
+   We expose those colors as CSS variables, then map them to:
+     1. shadcn/ui token names  (--primary, --background, --border …)  so every
+        shadcn component is automatically on-brand.
+     2. The design's own names  (--color-surface-container, --color-primary …)
+        so we can write expressive classes like `bg-surface-container`.
+   ========================================================================== */
+
+/* Enable class-based dark mode (`<html class="dark">`). The site is dark-only,
+   but defining the variant keeps `dark:` utilities working if ever needed. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ── 1. Raw brand palette + shadcn token mapping ─────────────────────────── */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Corner rounding used by shadcn components */
+  --radius: 0.75rem;
+
+  /* shadcn semantic tokens → mapped to the Stitch palette */
+  --background: #101415; /* deep slate page background */
+  --foreground: #e0e3e5; /* primary readable text */
+  --card: #1d2022; /* raised surface */
+  --card-foreground: #e0e3e5;
+  --popover: #1d2022;
+  --popover-foreground: #e0e3e5;
+  --primary: #adc6ff; /* electric blue accent (actions, highlights) */
+  --primary-foreground: #002e6a;
+  --secondary: #3f465c;
+  --secondary-foreground: #e0e3e5;
+  --muted: #272a2c;
+  --muted-foreground: #c2c6d6; /* secondary / supporting text */
+  --accent: #272a2c;
+  --accent-foreground: #e0e3e5;
+  --destructive: #93000a;
+  --destructive-foreground: #ffdad6;
+  --border: #424754; /* hairline outlines */
+  --input: #424754;
+  --ring: #adc6ff; /* focus ring = brand blue */
 }
 
+/* ── 2. Theme: turn the variables above into Tailwind utility classes ────── */
 @theme inline {
+  /* Fonts (the actual font files are loaded in layout.tsx via next/font) */
+  --font-sans: var(--font-inter); /* body copy = Inter */
+  --font-display: var(--font-geist); /* headings   = Geist */
+
+  /* shadcn semantic colors → bg-primary, text-muted-foreground, border-border… */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  /* Design-system colors → bg-surface-container, text-on-surface-variant, … */
+  --color-surface: #101415;
+  --color-surface-dim: #101415;
+  --color-surface-bright: #363a3b;
+  --color-surface-container-lowest: #0b0f10;
+  --color-surface-container-low: #191c1e;
+  --color-surface-container: #1d2022;
+  --color-surface-container-high: #272a2c;
+  --color-surface-container-highest: #323537;
+  --color-on-surface: #e0e3e5;
+  --color-on-surface-variant: #c2c6d6;
+  --color-outline: #8c909f;
+  --color-outline-variant: #424754;
+  --color-on-background: #e0e3e5;
+  --color-primary-container: #4d8eff;
+  --color-on-primary: #002e6a;
+  --color-on-primary-container: #00285d;
+  --color-primary-fixed: #d8e2ff;
+  --color-secondary-container: #3f465c;
+  --color-on-secondary: #283044;
+  --color-on-secondary-container: #adb4ce;
+  --color-tertiary: #b7c8e1;
+  --color-tertiary-container: #8292aa;
+  --color-on-tertiary: #213145;
+  --color-error: #ffb4ab;
+  --color-error-container: #93000a;
+  --color-on-error: #690005;
+  --color-on-error-container: #ffdad6;
+
+  /* Shared radii so rounded-* matches the design spec */
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+
+  /* Scroll-reveal animation registered as `animate-fade-up` */
+  --animate-fade-up: fade-up 0.7s ease-out forwards;
+  @keyframes fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(2.5rem);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 }
 
+/* ── 3. Base element defaults ────────────────────────────────────────────── */
 body {
-  background: var(--background);
+  background-color: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+  overflow-x: hidden; /* prevent horizontal scroll from glow/blur elements */
+}
+
+::selection {
+  background-color: #4d8eff; /* primary-container */
+  color: #00285d; /* on-primary-container */
+}
+
+/* ── 4. Signature visual effects (Glassmorphism + Blue glow) ─────────────── */
+/* Frosted-glass panel used by cards, the navbar, and overlays. */
+.glass {
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Lift + electric-blue glow on hover (used on interactive cards/buttons). */
+.glow-hover {
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
+.glow-hover:hover {
+  box-shadow: 0 4px 20px rgba(59, 130, 246, 0.3);
+  transform: scale(1.02);
 }
